@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const ResumeBuilder = require("../models/ResumeBuilder/resumeBuilder");
-
+const UserModel = require("../models/userModel/UserModel")
 /* Importing the functions from the Company.js file. */
 const {
   user_register,
@@ -17,24 +17,33 @@ const roles = require("../controllers/roles");
 
 /* This is a route that is used to get the user's resume. */
 router.get(
-  "/resume",
+  "/resumeBuilder/:id",
   user_auth,
-  role_auth([roles.EMPLOYEE]),
+  
   async (req, res) => {
-    return res.json(await ResumeBuilder.find({ user: req.user.resumeBuilder }));
+    try {
+      const resume = await ResumeBuilder.findById(req.params.id).exec()
+
+      // const { resumeBuilder } = user._doc;
+
+      res.status(200).json(resume);
+    } catch (err) {
+      res.status(404).json("no user is found", err);
+    }
   }
 );
 
 router.post(
-  "/resumeBuilder/:id",
-  user_auth,
-  role_auth([roles.EMPLOYEE]),
+  "/resumeBuilder",
+  // user_auth,
+  // role_auth([roles.EMPLOYEE]),
   async (req, res) => {
-    try {
-      let resume = new ResumeBuilder({
+     try {
+      let resume  = new ResumeBuilder({
         ...req.body,
       });
-      await addResumeToUser(req.params.id, resume.id);
+      // const user_id = req.user.id
+      // await addResumeToUser(user_id, resume.id);
       let save_resume = await resume.save();
       return res.status(201).json({
         message: "Resume Created Successfully.",

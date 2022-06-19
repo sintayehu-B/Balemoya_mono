@@ -3,7 +3,7 @@ const ResumeBuilderSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: false,
-    unique: true,
+    // unique: true,
   },
   experience: {
     type: String,

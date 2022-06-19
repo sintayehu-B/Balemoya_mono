@@ -25,6 +25,7 @@ const reviews = require("./src/routes/reviews");
 const report = require("./src/routes/reports");
 const verifyRequest = require("./src/routes/verifyRequest");
 const reportResponse = require("./src/routes/reportResponse");
+const ResumeBuilder = require("./src/routes/resumeBuilder");
 // chat
 const conversationRoute = require("./src/routes/conversation");
 const messagesRoute = require("./src/routes/messages");
@@ -67,6 +68,7 @@ app.use("/microservice/accountService/users/reviews", reviews);
 app.use("/microservice/accountService/users/verifyRequest", verifyRequest);
 app.use("/microservice/accountService/employee/reports", report);
 app.use("/microservice/accountService/employee/response", reportResponse);
+app.use("/microservice/accountService/employee/resume", ResumeBuilder);
 app.use(
   "/microservice/accountService/employee/educationalBackground",
   userEducationalBackgroundRoute
@@ -80,3 +82,4 @@ app.use(
 app.listen(5655, () => {
   console.log("Service's is up and running!");
 });
+  

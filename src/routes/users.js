@@ -116,16 +116,16 @@ router.get("/:id", user_auth, role_auth([roles.ADMIN]), async (req, res) => {
 
 /* This is a route that is used to get the profile of the user. */
 router.get(
-  "/notification",
+  "/resumeBuilder",
   user_auth,
-  role_auth([roles.EMPLOYEE, roles.EMPLOYER]),
+  
   async (req, res) => {
     try {
       const user = await User.findById(req.user.id)
-        .populate("notification")
+        .populate("resumeBuilder")
         .exec();
-      const { notification } = user._doc;
-      res.status(200).json(notification);
+      const { resumeBuilder } = user._doc;
+      res.status(200).json(resumeBuilder.id);
     } catch (err) {
       res.status(404).json("no user is found", err);
     }

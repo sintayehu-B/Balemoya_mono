@@ -8,6 +8,32 @@ const router = require("express").Router(),
     addJobPostToUser,
   } = require("../controllers/auth");
 
+  // router.get("/posted/:id", async (req, res) => {
+  //   try {
+  //     const id = req.params.id
+  //     const post = await JobPost.findOne({ postedBy: id })
+
+  //       .exec();
+  
+  //     // const { postedBy } = post._doc;
+  //     res.status(200).json(post);
+  //   } catch (err) {
+  //     res.status(500).json(err);
+  //   }
+  // });
+  router.get("/posted", user_auth, async (req, res) => {
+    try {
+      const post = await JobPost.findOne({ postedBy: req.user.id })
+    
+        .exec();
+  
+      // const { postedBy } = post._doc;
+      res.status(200).json(post);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
 router.patch(
   "/:id",
   user_auth,
@@ -37,6 +63,36 @@ router.patch(
     }
   }
 );
+
+
+router.post(
+  "/search",
+ 
+  async (req, res) => {
+    const query = req.body.query;
+    // Array
+    const jobType = req.body.jobType;
+    // add location
+    try {
+      let posts = await JobPost.find({
+
+      }).exec();
+      posts = posts.filter(e=>{
+        if( jobType.includes(e.jobType) ||e.jobTitle.includes(query)  ||e.companyName.includes(query) || e.description.includes(query) || e.location.includes(query) || e.salary.includes(query)){
+          return true;
+        }
+        return false;
+      })
+      res.status(200).json(posts);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  }
+);
+
+
+
 // Create Post
 
 /* This is a post request to create a new post. */
@@ -66,27 +122,28 @@ router.post("/", user_auth, role_auth([roles.EMPLOYER]), async (req, res) => {
 /* This is a delete request to delete a single post. */
 router.delete(
   "/:id",
-  user_auth,
-  role_auth([roles.EMPLOYER]),
+ 
   async (req, res) => {
     try {
       const post = await JobPost.findById(req.params.id);
 
       if (post) {
-        try {
+      
           await post.delete();
           res.status(200).json("Post deleted successfully");
-        } catch (err) {
-          res.status(500).json(err);
-        }
+        
       } else {
-        res.status(401).json("unauthorize to delete this  post !");
+        res.status(401).json("unauthorize to delete this post !");
       }
     } catch (err) {
       res.status(500).json(err);
     }
   }
 );
+
+
+
+
 
 // Get Post
 /* This is a get request to get a single post. */
@@ -98,40 +155,13 @@ router.get("/:id", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
-// Get all posts
-/* This is a get request to get all the posts. */
-router.get(
-  "/",
-  user_auth,
-  role_auth([roles.EMPLOYEE, roles.EMPLOYER]),
-  async (req, res) => {
-    const companyName = req.query.company;
-    const tag = req.query.tag;
-    const jobType = req.query.jobType;
-    // add location
-    try {
-      let posts;
-      if (companyName) {
-        posts = await JobPost.find({ companyName });
-      } else if (tag) {
-        posts = await JobPost.find({
-          tag: {
-            $in: [tag],
-          },
-        });
-      } else if (jobType) {
-        posts = await JobPost.find({
-          jobType,
-        });
-      } else {
-        posts = await JobPost.find();
-      }
-      res.status(200).json(posts);
-    } catch (err) {
-      res.status(500).json(err);
-    }
+//get all posts 
+router.get("/", async (req, res) => {
+  try {
+    const post = await JobPost.find().exec();
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
   }
-);
-
+});
 module.exports = router;
